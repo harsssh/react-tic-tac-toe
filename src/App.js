@@ -32,6 +32,9 @@ function calculateWinner(squares) {
   if (check(diag1)) return diag1[0];
   if (check(diag2)) return diag2[0];
 
+  // すべて埋まっていたら引き分け
+  if (squares.every((square) => square !== null)) return "-";
+
   return null;
 }
 
@@ -40,7 +43,11 @@ export default function Board() {
   const [squares, setSquares] = useState(Array(9).fill(null));
 
   const winner = calculateWinner(squares);
-  const status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? "X" : "O"}`;
+  const status = winner
+    ? winner === "-"
+      ? "Draw"
+      : `Winner: ${winner}`
+    : `Next player: ${xIsNext ? "X" : "O"}`;
 
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) return;
