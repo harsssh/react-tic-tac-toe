@@ -9,12 +9,41 @@ function Square({ value, onSquareClick }) {
   );
 }
 
+function calculateWinner(squares) {
+  const lineLen = Math.sqrt(squares.length);
+  const getRow = (i) => squares.slice(i * lineLen, i * lineLen + lineLen);
+  const getCol = (i) => squares.filter((_, index) => index % lineLen === i);
+  const check = (arr) => arr[0] !== null && new Set(arr).size === 1;
+
+  // 行, 列のチェック
+  for (let i = 0; i < lineLen; i++) {
+    const row = getRow(i);
+    const col = getCol(i);
+    if (check(row)) return row[0];
+    if (check(col)) return col[0];
+  }
+
+  // 斜めのチェック
+  const diag1 = squares.filter((_, index) => index % (lineLen + 1) === 0);
+  const diag2 = squares.filter(
+    (_, index) =>
+      index % (lineLen - 1) === 0 && index !== 0 && index !== squares.length - 1
+  );
+  if (check(diag1)) return diag1[0];
+  if (check(diag2)) return diag2[0];
+
+  return null;
+}
+
 export default function Board() {
   const [xIsNext, setXIsNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
 
+  const winner = calculateWinner(squares);
+  const status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? "X" : "O"}`;
+
   function handleClick(i) {
-    if (squares[i]) return;
+    if (squares[i] || calculateWinner(squares)) return;
     const nextSquares = squares.slice();
     nextSquares[i] = xIsNext ? "X" : "O";
     setSquares(nextSquares);
@@ -23,6 +52,7 @@ export default function Board() {
 
   return (
     <>
+      <div className="status">{status}</div>
       <div className="board-row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
